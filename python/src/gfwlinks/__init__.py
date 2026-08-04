@@ -9,39 +9,48 @@ from urllib.parse import quote
 
 __all__ = ["vessel_profile_url", "vessel_map_url"]
 
-BASE = "https://globalfishingwatch.org/map"
+MAP_BASE_URL = "https://globalfishingwatch.org/map"
 PIPE_VERSION = "4"                     # frontend: PIPE_DATASET_VERSION (Vite build env)
-_V = f"v{PIPE_VERSION}.0"
-IDENTITY = f"public-global-vessel-identity:{_V}"
-TRACKS = f"public-global-all-tracks:{_V}"
-EVENTS = [f"public-global-{e}-events:{_V}" for e in
-          ("fishing", "port-visits", "encounters", "loitering", "gaps")]
-TRACK_DATAVIEW = f"fishing-map-vessel-track-v-{PIPE_VERSION}"
+DATASET_VERSION = f"v{PIPE_VERSION}.0"
+IDENTITY_DATASET = f"public-global-vessel-identity:{DATASET_VERSION}"
+TRACKS_DATASET = f"public-global-all-tracks:{DATASET_VERSION}"
+EVENT_DATASETS = [f"public-global-{event}-events:{DATASET_VERSION}" for event in
+                  ("fishing", "port-visits", "encounters", "loitering", "gaps")]
+TRACK_DATAVIEW_ID = f"fishing-map-vessel-track-v-{PIPE_VERSION}"
 DEFAULT_EVENTS = ("fishing", "encounter", "port_visit", "gaps")
-COLORS = ("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#069688",
-          "#4184F4", "#AD1457", "#C0CA33", "#8E24A9", "#ABFF34", "#FCA26F")
+TRACK_COLORS = ("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#069688",
+                "#4184F4", "#AD1457", "#C0CA33", "#8E24A9", "#ABFF34", "#FCA26F")
+
+# The query-string keys below are the frontend's own abbreviations (see
+# DEVELOPMENT.md "Ground truth") -- they are wire format, not ours to rename:
+#   vDi   vessel dataset id          dvIn        dataview instances (array)
+#   vIs   vessel identity source     dvIn[][dvId]  dataview id it instantiates
+#   vSRi  vessel self-reported id    dvIn[][cfg]   dataview config
+#   vE    visible events (array)     cfg[clr]      track colour
+#   tV    timebar visualisation      cfg[vis]      layer visible?
 
 
-def _fmt(v):
-    if v is True or v is False:        # before the int check: bool IS an int
-        return "true" if v else "false"
-    if isinstance(v, str):
-        return v
-    if isinstance(v, int):
-        return str(v)
-    for d in range(18):                # shortest fixed-notation that round-trips; the R
-        s = "%.*f" % (d, v)            # twin uses the same loop because R lacks a
-        if float(s) == v:              # shortest-roundtrip primitive like JS's String(n)
-            return s
-    raise ValueError(f"cannot format {v!r}")
+def _format_value(value):
+    if value is True or value is False:    # before the int check: bool IS an int
+        return "true" if value else "false"
+    if isinstance(value, str):
+        return value
+    if isinstance(value, int):
+        return str(value)
+    for decimals in range(18):             # shortest fixed-notation that round-trips; the R
+        text = "%.*f" % (decimals, value)  # twin uses the same loop because R lacks a
+        if float(text) == value:           # shortest-roundtrip primitive like JS's String(n)
+            return text
+    raise ValueError(f"cannot format {value!r}")
 
 
-def _query(pairs):
-    pairs = sorted((k, _fmt(v)) for k, v in pairs if v is not None)   # URLSearchParams.sort()
-    return "&".join(f"{quote(k, safe='')}={quote(v, safe='')}" for k, v in pairs)
+def _encode_query(params):
+    params = sorted((key, _format_value(value))                       # URLSearchParams.sort()
+                    for key, value in params if value is not None)
+    return "&".join(f"{quote(key, safe='')}={quote(value, safe='')}" for key, value in params)
 
 
-def _viewport(latitude, longitude, zoom, start, end):
+def _viewport_params(latitude, longitude, zoom, start, end):
     return [("latitude", latitude), ("longitude", longitude), ("zoom", zoom),
             ("start", start), ("end", end)]
 
@@ -82,10 +91,10 @@ def vessel_profile_url(vessel_id, identity_source="selfReportedInfo",
         raise ValueError(f"suspicious vessel_id: {vessel_id!r}")   # ?/# changes the URL
     if isinstance(visible_events, str):    # else iterates chars into one event per letter
         raise TypeError("visible_events must be a list of events, not a single string")
-    pairs = [("vDi", IDENTITY), ("vIs", identity_source), ("vSRi", vessel_id)]
-    pairs += [(f"vE[{i}]", e) for i, e in enumerate(visible_events)]
-    pairs += _viewport(latitude, longitude, zoom, start, end)
-    return f"{BASE}/vessel/{vessel_id}?{_query(pairs)}"
+    params = [("vDi", IDENTITY_DATASET), ("vIs", identity_source), ("vSRi", vessel_id)]
+    params += [(f"vE[{i}]", event) for i, event in enumerate(visible_events)]
+    params += _viewport_params(latitude, longitude, zoom, start, end)
+    return f"{MAP_BASE_URL}/vessel/{vessel_id}?{_encode_query(params)}"
 
 
 def vessel_map_url(vessel_ids, latitude=None, longitude=None, zoom=None,
@@ -121,16 +130,19 @@ def vessel_map_url(vessel_ids, latitude=None, longitude=None, zoom=None,
     """
     if isinstance(vessel_ids, str):        # else iterates chars into one id per letter
         raise TypeError("vessel_ids must be a list of ids, not a single string")
-    pairs = []
-    for i, v in enumerate(vessel_ids):
-        pairs += [(f"dvIn[{i}][id]", f"vessel-{v}:{_V}"),
-                  (f"dvIn[{i}][dvId]", TRACK_DATAVIEW),
-                  (f"dvIn[{i}][cfg][clr]", COLORS[i % len(COLORS)]),
-                  (f"dvIn[{i}][cfg][info]", IDENTITY),
-                  (f"dvIn[{i}][cfg][track]", TRACKS)]
-        pairs += [(f"dvIn[{i}][cfg][events][{j}]", e) for j, e in enumerate(EVENTS)]
+    params = []
+    for vessel_index, vessel_id in enumerate(vessel_ids):
+        dataview = f"dvIn[{vessel_index}]"
+        params += [(f"{dataview}[id]", f"vessel-{vessel_id}:{DATASET_VERSION}"),
+                   (f"{dataview}[dvId]", TRACK_DATAVIEW_ID),
+                   (f"{dataview}[cfg][clr]", TRACK_COLORS[vessel_index % len(TRACK_COLORS)]),
+                   (f"{dataview}[cfg][info]", IDENTITY_DATASET),
+                   (f"{dataview}[cfg][track]", TRACKS_DATASET)]
+        params += [(f"{dataview}[cfg][events][{event_index}]", event_dataset)
+                   for event_index, event_dataset in enumerate(EVENT_DATASETS)]
     # ais/vms are the only visible default-workspace layers; hide so tracks aren't buried
-    for j, layer in enumerate(("ais", "vms"), start=len(vessel_ids)):
-        pairs += [(f"dvIn[{j}][id]", layer), (f"dvIn[{j}][cfg][vis]", False)]
-    pairs += [("tV", "vessel")] + _viewport(latitude, longitude, zoom, start, end)
-    return f"{BASE}/fishing-activity/default-public?{_query(pairs)}"
+    for layer_index, layer in enumerate(("ais", "vms"), start=len(vessel_ids)):
+        dataview = f"dvIn[{layer_index}]"
+        params += [(f"{dataview}[id]", layer), (f"{dataview}[cfg][vis]", False)]
+    params += [("tV", "vessel")] + _viewport_params(latitude, longitude, zoom, start, end)
+    return f"{MAP_BASE_URL}/fishing-activity/default-public?{_encode_query(params)}"
