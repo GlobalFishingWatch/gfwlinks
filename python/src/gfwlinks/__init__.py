@@ -1,5 +1,13 @@
+"""Build shareable Global Fishing Watch map links from vessel ids.
+
+- `vessel_profile_url` -- page for a single vessel.
+- `vessel_map_url` -- map showing one or more vessels' tracks.
+"""
+
 import re
 from urllib.parse import quote
+
+__all__ = ["vessel_profile_url", "vessel_map_url"]
 
 BASE = "https://globalfishingwatch.org/map"
 PIPE_VERSION = "4"                     # frontend: PIPE_DATASET_VERSION (Vite build env)
@@ -41,6 +49,32 @@ def _viewport(latitude, longitude, zoom, start, end):
 def vessel_profile_url(vessel_id, identity_source="selfReportedInfo",
                         visible_events=DEFAULT_EVENTS, latitude=None, longitude=None,
                         zoom=None, start=None, end=None):
+    """URL for a single vessel's profile page.
+
+    Args:
+        vessel_id: Vessel id (the ``id`` field from the GFW API/vessel search).
+        identity_source: Which identity record to show: ``"selfReportedInfo"``
+            (default) or ``"registryInfo"``. Note the live app instead defaults
+            to ``"registryInfo"`` with a fallback; see DEVELOPMENT.md.
+        visible_events: Event layers to show, e.g. ``"fishing"``,
+            ``"encounter"``, ``"port_visit"``, ``"loitering"``, ``"gaps"``.
+            Defaults to all but ``"loitering"``.
+        latitude: Viewport latitude. Optional; omit along with `longitude`
+            and `zoom` for the map's default view.
+        longitude: Viewport longitude.
+        zoom: Viewport zoom level.
+        start: ISO 8601 timestamp (e.g. ``"2026-01-01T00:00:00.000Z"``)
+            bounding the start of the activity time range shown.
+        end: ISO 8601 timestamp bounding the end of the activity time range.
+
+    Returns:
+        str: The vessel profile page URL.
+
+    Example:
+        >>> vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501")
+        >>> vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501",
+        ...                     latitude=-43.4, longitude=176.3, zoom=8.6)
+    """
     if not re.fullmatch(r"[A-Za-z0-9:._-]+", vessel_id):   # lands in the PATH: a stray
         raise ValueError(f"suspicious vessel_id: {vessel_id!r}")   # ?/# changes the URL
     pairs = [("vDi", IDENTITY), ("vIs", identity_source), ("vSRi", vessel_id)]
@@ -51,6 +85,35 @@ def vessel_profile_url(vessel_id, identity_source="selfReportedInfo",
 
 def vessel_map_url(vessel_ids, latitude=None, longitude=None, zoom=None,
                     start=None, end=None):
+    """URL for a map showing one or more vessels' tracks.
+
+    Adds each vessel as its own dataview (distinct colour, identity, track
+    and event layers), and hides the default background activity layers
+    (``ais``, ``vms``) so the vessel tracks aren't buried under them.
+
+    Args:
+        vessel_ids: List of vessel ids to show together (not a single string).
+        latitude: Viewport latitude. Optional; when omitted (along with
+            `longitude` and `zoom`) the map opens at its default (world) view,
+            since this function does not compute a fit-bounds around the
+            vessels.
+        longitude: Viewport longitude.
+        zoom: Viewport zoom level.
+        start: ISO 8601 timestamp (e.g. ``"2026-01-01T00:00:00.000Z"``)
+            bounding the start of the activity time range shown.
+        end: ISO 8601 timestamp bounding the end of the activity time range.
+
+    Returns:
+        str: A single URL showing all of `vessel_ids`.
+
+    Raises:
+        TypeError: If `vessel_ids` is a single string instead of a list.
+
+    Example:
+        >>> vessel_map_url(["91da818da-ab9b-1556-e335-ca41831da501",
+        ...                 "41a98a2e0-0fbb-3d26-4b71-6d4266443a82"],
+        ...                 latitude=-43.4, longitude=176.3, zoom=8.6)
+    """
     if isinstance(vessel_ids, str):        # else iterates chars into one id per letter
         raise TypeError("vessel_ids must be a list of ids, not a single string")
     pairs = []

@@ -43,6 +43,36 @@ COLORS <- c("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#
   sprintf("%s/vessel/%s?%s", BASE, vessel_id, .query(pairs))
 }
 
+#' URL for a single vessel's profile page
+#'
+#' Builds the URL for the GFW map page showing one vessel's identity,
+#' activity and (optionally) a viewport centered on a place and time.
+#'
+#' Vectorized over every argument (via [base::Vectorize()]), so it can be
+#' called with a column of vessel ids, e.g. `mutate(url = vessel_profile_url(vessel_id))`.
+#' `visible_events` is the exception: it is passed whole to every call, not
+#' recycled element-by-element, since it's a set of event types rather than
+#' a per-vessel value.
+#'
+#' @param vessel_id Vessel id (the `id` field from the GFW API/vessel search).
+#' @param identity_source Which identity record to show: `"selfReportedInfo"`
+#'   (default) or `"registryInfo"`. Note the live app instead defaults to
+#'   `"registryInfo"` with a fallback; see DEVELOPMENT.md.
+#' @param visible_events Character vector of event layers to show, e.g.
+#'   `"fishing"`, `"encounter"`, `"port_visit"`, `"loitering"`, `"gaps"`.
+#'   Defaults to all but `"loitering"`.
+#' @param latitude,longitude,zoom Map viewport. All three are optional; when
+#'   omitted the map opens at its default view instead of a specific place.
+#' @param start,end ISO 8601 timestamps (e.g. `"2026-01-01T00:00:00.000Z"`)
+#'   bounding the activity time range shown.
+#'
+#' @return A character vector of URLs, one per `vessel_id`.
+#' @export
+#'
+#' @examples
+#' vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501")
+#' vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501",
+#'                     latitude = -43.4, longitude = 176.3, zoom = 8.6)
 # vectorized so mutate(url = vessel_profile_url(vessel_id)) works over a column;
 # visible_events stays whole per call (same events for every row), not zipped
 vessel_profile_url <- Vectorize(.vessel_profile_url_one,
@@ -51,6 +81,27 @@ vessel_profile_url <- Vectorize(.vessel_profile_url_one,
                                                      "start", "end"),
                                  SIMPLIFY = TRUE, USE.NAMES = FALSE)
 
+#' URL for a map showing one or more vessels' tracks
+#'
+#' Builds the URL for the GFW fishing-activity map with each vessel added as
+#' its own dataview (distinct colour, identity, track and event layers), and
+#' the default background activity layers (`ais`, `vms`) hidden so the
+#' vessel tracks aren't buried under them.
+#'
+#' @param vessel_ids Character vector of vessel ids to show together.
+#' @param latitude,longitude,zoom Map viewport. All three are optional; when
+#'   omitted the map opens at its default (world) view, since this function
+#'   does not compute a fit-bounds around the vessels.
+#' @param start,end ISO 8601 timestamps (e.g. `"2026-01-01T00:00:00.000Z"`)
+#'   bounding the activity time range shown.
+#'
+#' @return A single URL (character scalar) showing all of `vessel_ids`.
+#' @export
+#'
+#' @examples
+#' vessel_map_url(c("91da818da-ab9b-1556-e335-ca41831da501",
+#'                   "41a98a2e0-0fbb-3d26-4b71-6d4266443a82"),
+#'                 latitude = -43.4, longitude = 176.3, zoom = 8.6)
 vessel_map_url <- function(vessel_ids, latitude = NULL, longitude = NULL, zoom = NULL,
                             start = NULL, end = NULL) {
   pairs <- list()
