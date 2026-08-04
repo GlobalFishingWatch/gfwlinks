@@ -38,7 +38,7 @@ def _format_value(value):
     if isinstance(value, int):
         return str(value)
     for decimals in range(18):             # shortest fixed-notation that round-trips; the R
-        text = "%.*f" % (decimals, value)  # twin uses the same loop because R lacks a
+        text = f"{value:.{decimals}f}"     # twin uses the same loop because R lacks a
         if float(text) == value:           # shortest-roundtrip primitive like JS's String(n)
             return text
     raise ValueError(f"cannot format {value!r}")
