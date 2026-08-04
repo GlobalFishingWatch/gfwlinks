@@ -1,0 +1,27 @@
+name: live
+
+# Separate from `test`: this one talks to the live GFW app, so a failure can mean
+# the frontend changed its URL contract *or* that the app is simply down. Keeping
+# it out of the PR gate means neither blocks an unrelated merge.
+on:
+  schedule:
+    - cron: "34 6 * * 1"     
+  workflow_dispatch:
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv run --group live playwright install --with-deps chromium
+        working-directory: python
+      - run: uv run --group live pytest tests/test_live.py -v
+        working-directory: python
+        env:
+          GFWLINKS_LIVE: "1"
+      - uses: actions/upload-artifact@v4
+        if: always()         # the screenshots matter most when the assertions failed
+        with:
+          name: live-screenshots
+          path: python/live-screenshots/

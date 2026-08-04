@@ -5,3 +5,5 @@ __pycache__/
 .Rproj.user/
 .Rhistory
 .RData
+live-screenshots/
+.playwright-mcp/

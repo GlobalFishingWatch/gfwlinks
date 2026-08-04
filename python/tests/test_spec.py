@@ -11,4 +11,9 @@ SPEC = json.loads((pathlib.Path(__file__).parents[2] / "specs"
 
 @pytest.mark.parametrize("case", SPEC["cases"], ids=lambda c: c["name"])
 def test_url(case):
-    assert getattr(gfwlinks, case["function"])(**case["args"]) == case["url"]
+    fn = getattr(gfwlinks, case["function"])
+    if "raises_matching" in case:
+        with pytest.raises((ValueError, TypeError), match=case["raises_matching"]):
+            fn(**case["args"])
+    else:
+        assert fn(**case["args"]) == case["url"]

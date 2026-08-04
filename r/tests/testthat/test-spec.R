@@ -9,7 +9,12 @@ test_that("urls match the shared spec", {
   # simplifyVector = FALSE keeps JSON arrays as lists so one-element arrays don't
   # collapse to scalars and diverge from Python
   spec <- jsonlite::fromJSON(spec_path, simplifyVector = FALSE)
-  for (case in spec$cases)
-    expect_identical(do.call(get(case[["function"]]), case$args), case$url,
-                     info = case$name)
+  for (case in spec$cases) {
+    fn <- get(case[["function"]])
+    if (!is.null(case$raises_matching)) {
+      expect_error(do.call(fn, case$args), case$raises_matching, info = case$name)
+    } else {
+      expect_identical(do.call(fn, case$args), case$url, info = case$name)
+    }
+  }
 })
