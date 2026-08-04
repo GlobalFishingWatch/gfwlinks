@@ -112,14 +112,14 @@ def _assert_app_understands(url, vessel_ids, datasets, browser, screenshot_name)
     required = {}
     for vessel_id in vessel_ids:
         quoted = re.escape(vessel_id)
-        required["identity request for %s (vessel id / identity dataset)" % vessel_id] = \
-            r"/v3/vessels/%s\?" % quoted
-        required["track request for %s (track dataview)" % vessel_id] = \
-            r"/v3/vessels/%s/tracks\?" % quoted
-        required["event request for %s (event datasets)" % vessel_id] = \
-            r"/v3/events\?vessels\[0\]=%s" % quoted
+        required[f"identity request for {vessel_id} (vessel id / identity dataset)"] = \
+            rf"/v3/vessels/{quoted}\?"
+        required[f"track request for {vessel_id} (track dataview)"] = \
+            rf"/v3/vessels/{quoted}/tracks\?"
+        required[f"event request for {vessel_id} (event datasets)"] = \
+            rf"/v3/events\?vessels\[0\]={quoted}"
     for dataset in sorted(set(datasets) - UNREQUESTED_DATASETS):
-        required["a request naming %s" % dataset] = re.escape(dataset)
+        required[f"a request naming {dataset}"] = re.escape(dataset)
 
     try:
         page.goto(url, wait_until="load")
@@ -133,14 +133,13 @@ def _assert_app_understands(url, vessel_ids, datasets, browser, screenshot_name)
         # before the screenshot, or it shows a track over blank ocean
         page.wait_for_timeout(SETTLE_MS)
         SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
-        page.screenshot(path=str(SCREENSHOT_DIR / ("%s.png" % screenshot_name)))
+        page.screenshot(path=str(SCREENSHOT_DIR / f"{screenshot_name}.png"))
         final_url = page.url
     finally:
         context.close()
 
     rejected = [call for call in api_calls if call[1] >= 400]
-    assert not rejected, "GFW API rejected %d request(s): %s" % (
-        len(rejected), rejected[:3])
+    assert not rejected, f"GFW API rejected {len(rejected)} request(s): {rejected[:3]}"
 
     # report every missing request at once, not just the first
     missing = sorted(label for label, pattern in required.items() if not seen(pattern))
@@ -149,9 +148,9 @@ def _assert_app_understands(url, vessel_ids, datasets, browser, screenshot_name)
 
     for vessel_id in vessel_ids:
         # the app rewrites the query into its own tokenized form; ids must survive that
-        assert vessel_id in final_url, "%s dropped from the URL on load" % vessel_id
+        assert vessel_id in final_url, f"{vessel_id} dropped from the URL on load"
 
-    assert not page_errors, "uncaught page error(s): %s" % page_errors[:3]
+    assert not page_errors, f"uncaught page error(s): {page_errors[:3]}"
 
 
 @pytest.mark.parametrize("case", LIVE_CASES, ids=lambda case: case["name"])
