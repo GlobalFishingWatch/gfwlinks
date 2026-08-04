@@ -133,7 +133,11 @@ def _assert_app_understands(url, vessel_ids, datasets, browser, screenshot_name)
         # before the screenshot, or it shows a track over blank ocean
         page.wait_for_timeout(SETTLE_MS)
         SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
-        page.screenshot(path=str(SCREENSHOT_DIR / f"{screenshot_name}.png"))
+        # jpeg, not png: this is basemap/satellite imagery (compresses far
+        # better as jpeg), and the CI job summary embeds these as base64 --
+        # keeping them small is what makes that fit under GitHub's 1MiB cap
+        page.screenshot(path=str(SCREENSHOT_DIR / f"{screenshot_name}.jpg"),
+                        type="jpeg", quality=60)
         final_url = page.url
     finally:
         context.close()
