@@ -42,14 +42,3 @@ the spec file.
   opens at the world default view.
 - URLs are literal, not qs-tokenized — longer than the app's, never wrong;
   the app parses literal URLs the same way.
-
-## Org policy
-
-Per Global Fishing Watch AI policy: this analysis is the responsibility of
-the reviewing analyst — check the sources above yourself, and note
-`frontend@develop` moves, so a later commit may already differ. No vibe
-coding to production: before relying on `_fmt` (`python/src/gfwlinks/__init__.py`)
-or `.fmt`/`order(..., method = "radix")` (`r/R/gfwlinks.R`), understand why
-they're written that way (see the code comments — `%g` formatting diverges
-from JS on some values, and R's default `order()` is locale-dependent even
-under `LC_COLLATE=C`).
