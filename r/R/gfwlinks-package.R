@@ -6,3 +6,8 @@
 #'
 #' @keywords internal
 "_PACKAGE"
+
+# DEFAULT_EVENTS is a real top-level binding, but Vectorize() rewrites the
+# function that references it as a default arg, so codetools can't see the
+# reference and flags a false-positive "no visible binding" NOTE.
+utils::globalVariables("DEFAULT_EVENTS")

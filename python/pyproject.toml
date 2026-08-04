@@ -3,7 +3,15 @@ name = "gfwlinks"
 version = "0.1.0"
 description = "Build Global Fishing Watch map URLs without the frontend's encoder"
 requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Fernando Cagua-Jahn", email = "fernando.cagua@globalfishingwatch.org" },
+]
 dependencies = []
+
+[project.urls]
+Repository = "https://github.com/GlobalFishingWatch/gfwlinks"
 
 [dependency-groups]
 dev = ["pytest>=8"]

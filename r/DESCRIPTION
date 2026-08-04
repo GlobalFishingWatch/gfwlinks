@@ -3,7 +3,9 @@ Title: Build Global Fishing Watch Map URLs
 Version: 0.1.0
 Description: Build Global Fishing Watch map URLs without the frontend's encoder.
 Authors@R: person("Fernando", "Cagua-Jahn", email = "fernando.cagua@globalfishingwatch.org", role = c("aut", "cre"))
-License: MIT
+License: MIT + file LICENSE
+URL: https://github.com/GlobalFishingWatch/gfwlinks
+BugReports: https://github.com/GlobalFishingWatch/gfwlinks/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Suggests:
