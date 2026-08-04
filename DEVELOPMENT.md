@@ -14,9 +14,36 @@ cd r && Rscript -e 'testthat::test_dir("tests/testthat")'
 Both suites check output against `specs/url_test_cases.json`. CI
 (`.github/workflows/test.yml`) runs both on every PR.
 
+### Spec schema (`specs/url_test_cases.json`)
+
+```jsonc
+{
+  "header": {
+    "frontend_repo": "GlobalFishingWatch/frontend",
+    "frontend_branch": "develop",
+    "frontend_commit": "<sha>",     // pinned commit; see "Ground truth" below
+    "verified_at": "YYYY-MM-DD",    // date the cases were last checked against that commit
+    "pipe_version": "4"             // PIPE_DATASET_VERSION, baked into every dataset id
+  },
+  "cases": [
+    {
+      "name": "unique_snake_case_id",     // used as the test id in both suites
+      "description": "why this case exists, what it guards against",
+      "live": true,                        // required -- see "Live app check" below
+      "function": "vessel_profile_url",    // or "vessel_map_url"
+      "args": { "...": "kwargs passed straight to the function" },
+      "url": "expected return value",              // exactly one of url / raises_matching
+      "raises_matching": "regex the raised message must match"
+    }
+  ]
+}
+```
+
+Adding a case means picking a unique `name`, filling in `args` plus the expected `url` (or `raises_matching` for an error path), and declaring `live`. `test_spec.py::test_every_case_declares_live` fails the build if `live` is missing, since an absent flag would otherwise read as "skip the browser check" with no warning.
+
 ### Live app check
 
-The suites above only prove the two implementations agree with each other and with a frozen string. They cannot notice changes in frontend code. `python/tests/test_live.py` closes that gap by loading each spec URL in a real browser and asserting the app still asks its own API for what the URL specified:
+The suites above only prove the two implementations agree with each other and with a frozen string. They cannot notice changes in frontend code. `python/tests/test_live.py` closes that gap by loading each `"live": true` spec case in a real browser and asserting the app still asks its own API for what the URL specified:
 
 ```bash
 cd python
@@ -24,7 +51,7 @@ uv run --group live playwright install chromium     # once
 GFWLINKS_LIVE=1 uv run --group live pytest tests/test_live.py
 ```
 
-It is opt-in (skipped without `GFWLINKS_LIVE`) and runs regularly via `.github/workflows/live.yml`. Note a failure can equally mean the app is down, and that shouldn't block an unrelated merge. Only cases flagged `"live": true` in the spec are checked.
+It is opt-in (skipped without `GFWLINKS_LIVE`) and runs regularly via `.github/workflows/live.yml`. Note a failure can equally mean the app is down, and that shouldn't block an unrelated merge.
 
 Asserted, per vessel in the URL: an identity call and a track call, each naming the dataset the URL specified, plus at least one event call. `vessel_map_url` links additionally assert every event dataset they declare; `vessel_profile_url` links only assert that some event call fires, since which event types get requested depends on `visible_events` and the API's own dataset names don't map 1:1 to it. All calls return 2xx, and our vessel ids survive the app's own query-string rewrite. Screenshots land in `python/live-screenshots/` (uploaded as a CI artifact) for a human to eyeball.
 
@@ -40,7 +67,7 @@ Semantic versioning (`MAJOR.MINOR.PATCH`). Python (`python/pyproject.toml`) and 
 
 Verified against `frontend@develop` at commit [`edcd7db`](https://github.com/GlobalFishingWatch/frontend/commit/edcd7db8d19be2f07d45dade976a5a7450110d16). See that commit's `url-workspace.ts`, `dataviews.utils.ts`, `workspaces.ts`, `vessel.config.ts`, `color-bar-options.ts`, and `events.ts` for the pieces this copies (key abbreviations, sort order, dataview ids, colours, versions).
 
-Two spec cases (`single_vessel_minimal`, `multiple_vessels_together`) were additionally confirmed by loading the generated URL in the live map with Playwright. The other three (`numeric_precision`, `single_item_list`, `large_fleet`) are synthetic edge cases — see each case's `description` in the spec file. Four of the five are now re-confirmed automatically every week; see "Live app check" above.
+`single_vessel_minimal` and `multiple_vessels_together` were additionally confirmed by loading the generated URL in the live map with Playwright when first authored. The rest are synthetic edge cases — see each case's `description` in the spec file. Cases flagged `live: true` are re-confirmed automatically every week; see "Live app check" above.
 
 ## Known divergences from the app
 
