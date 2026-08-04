@@ -1,47 +1,62 @@
-BASE <- "https://globalfishingwatch.org/map"
+MAP_BASE_URL <- "https://globalfishingwatch.org/map"
 PIPE_VERSION <- "4" # frontend: PIPE_DATASET_VERSION (Vite build env)
-.V <- paste0("v", PIPE_VERSION, ".0")
-IDENTITY <- paste0("public-global-vessel-identity:", .V)
-TRACKS <- paste0("public-global-all-tracks:", .V)
-EVENTS <- paste0("public-global-", c("fishing", "port-visits", "encounters", "loitering", "gaps"),
-                  "-events:", .V)
-TRACK_DATAVIEW <- paste0("fishing-map-vessel-track-v-", PIPE_VERSION)
+DATASET_VERSION <- paste0("v", PIPE_VERSION, ".0")
+IDENTITY_DATASET <- paste0("public-global-vessel-identity:", DATASET_VERSION)
+TRACKS_DATASET <- paste0("public-global-all-tracks:", DATASET_VERSION)
+EVENT_DATASETS <- paste0("public-global-",
+                          c("fishing", "port-visits", "encounters", "loitering", "gaps"),
+                          "-events:", DATASET_VERSION)
+TRACK_DATAVIEW_ID <- paste0("fishing-map-vessel-track-v-", PIPE_VERSION)
 DEFAULT_EVENTS <- c("fishing", "encounter", "port_visit", "gaps")
-COLORS <- c("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#069688",
-            "#4184F4", "#AD1457", "#C0CA33", "#8E24A9", "#ABFF34", "#FCA26F")
+TRACK_COLORS <- c("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#069688",
+                  "#4184F4", "#AD1457", "#C0CA33", "#8E24A9", "#ABFF34", "#FCA26F")
 
-.fmt <- function(v) {
-  if (is.logical(v)) return(if (v) "true" else "false")
-  if (is.character(v)) return(v)
-  for (d in 0:17) { s <- sprintf("%.*f", d, v); if (as.numeric(s) == v) return(s) }
-  stop("cannot format number: ", v)
+# The query-string keys below are the frontend's own abbreviations (see
+# DEVELOPMENT.md "Ground truth") -- they are wire format, not ours to rename:
+#   vDi   vessel dataset id          dvIn          dataview instances (array)
+#   vIs   vessel identity source     dvIn[][dvId]  dataview id it instantiates
+#   vSRi  vessel self-reported id    dvIn[][cfg]   dataview config
+#   vE    visible events (array)     cfg[clr]      track colour
+#   tV    timebar visualisation      cfg[vis]      layer visible?
+
+.format_value <- function(value) {
+  if (is.logical(value)) return(if (value) "true" else "false")
+  if (is.character(value)) return(value)
+  # shortest fixed-notation that round-trips; base R has no shortest-roundtrip
+  # primitive like JS's String(n), so the Python twin uses the same loop
+  for (decimals in 0:17) {
+    text <- sprintf("%.*f", decimals, value)
+    if (as.numeric(text) == value) return(text)
+  }
+  stop("cannot format number: ", value)
 }
 
-.query <- function(pairs) {
-  pairs <- pairs[!vapply(pairs, is.null, logical(1))]
+.encode_query <- function(params) {
+  params <- params[!vapply(params, is.null, logical(1))]
   # radix: locale-independent byte order, matching JS URLSearchParams.sort()
-  o <- order(names(pairs), method = "radix")
-  enc <- function(s) utils::URLencode(s, reserved = TRUE, repeated = TRUE)
-  paste(vapply(names(pairs)[o], enc, ""),
-        vapply(vapply(pairs[o], .fmt, ""), enc, ""), sep = "=", collapse = "&")
+  sorted <- order(names(params), method = "radix")
+  percent_encode <- function(text) utils::URLencode(text, reserved = TRUE, repeated = TRUE)
+  paste(vapply(names(params)[sorted], percent_encode, ""),
+        vapply(vapply(params[sorted], .format_value, ""), percent_encode, ""),
+        sep = "=", collapse = "&")
 }
 
-.viewport <- function(latitude, longitude, zoom, start, end) {
+.viewport_params <- function(latitude, longitude, zoom, start, end) {
   list(latitude = latitude, longitude = longitude, zoom = zoom, start = start, end = end)
 }
 
-.vessel_profile_url_one <- function(vessel_id, identity_source = "selfReportedInfo",
-                                     visible_events = DEFAULT_EVENTS, latitude = NULL,
-                                     longitude = NULL, zoom = NULL, start = NULL, end = NULL) {
+.vessel_profile_url_single <- function(vessel_id, identity_source = "selfReportedInfo",
+                                        visible_events = DEFAULT_EVENTS, latitude = NULL,
+                                        longitude = NULL, zoom = NULL, start = NULL, end = NULL) {
   if (!grepl("^[A-Za-z0-9:._-]+$", vessel_id)) {  # lands in the PATH: a stray ?/#
     stop("suspicious vessel_id: ", vessel_id)      # changes the URL
   }
-  pairs <- list(vDi = IDENTITY, vIs = identity_source, vSRi = vessel_id)
-  for (i in seq_along(visible_events)) {
-    pairs[[sprintf("vE[%d]", i - 1)]] <- visible_events[[i]]
+  params <- list(vDi = IDENTITY_DATASET, vIs = identity_source, vSRi = vessel_id)
+  for (event_index in seq_along(visible_events)) {
+    params[[sprintf("vE[%d]", event_index - 1)]] <- visible_events[[event_index]]
   }
-  pairs <- c(pairs, .viewport(latitude, longitude, zoom, start, end))
-  sprintf("%s/vessel/%s?%s", BASE, vessel_id, .query(pairs))
+  params <- c(params, .viewport_params(latitude, longitude, zoom, start, end))
+  sprintf("%s/vessel/%s?%s", MAP_BASE_URL, vessel_id, .encode_query(params))
 }
 
 #' URL for a single vessel's profile page
@@ -76,7 +91,7 @@ COLORS <- c("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#
 #'                     latitude = -43.4, longitude = 176.3, zoom = 8.6)
 # vectorized so mutate(url = vessel_profile_url(vessel_id)) works over a column;
 # visible_events stays whole per call (same events for every row), not zipped
-vessel_profile_url <- Vectorize(.vessel_profile_url_one,
+vessel_profile_url <- Vectorize(.vessel_profile_url_single,
                                  vectorize.args = c("vessel_id", "identity_source",
                                                      "latitude", "longitude", "zoom",
                                                      "start", "end"),
@@ -105,27 +120,29 @@ vessel_profile_url <- Vectorize(.vessel_profile_url_one,
 #'                 latitude = -43.4, longitude = 176.3, zoom = 8.6)
 vessel_map_url <- function(vessel_ids, latitude = NULL, longitude = NULL, zoom = NULL,
                             start = NULL, end = NULL) {
-  pairs <- list()
+  params <- list()
   for (i in seq_along(vessel_ids)) {
-    idx <- i - 1
-    v <- vessel_ids[[i]]
-    pairs[[sprintf("dvIn[%d][id]", idx)]] <- paste0("vessel-", v, ":", .V)
-    pairs[[sprintf("dvIn[%d][dvId]", idx)]] <- TRACK_DATAVIEW
-    pairs[[sprintf("dvIn[%d][cfg][clr]", idx)]] <- COLORS[(idx %% length(COLORS)) + 1]
-    pairs[[sprintf("dvIn[%d][cfg][info]", idx)]] <- IDENTITY
-    pairs[[sprintf("dvIn[%d][cfg][track]", idx)]] <- TRACKS
-    for (j in seq_along(EVENTS)) {
-      pairs[[sprintf("dvIn[%d][cfg][events][%d]", idx, j - 1)]] <- EVENTS[[j]]
+    vessel_index <- i - 1 # url arrays are 0-based
+    vessel_id <- vessel_ids[[i]]
+    params[[sprintf("dvIn[%d][id]", vessel_index)]] <-
+      paste0("vessel-", vessel_id, ":", DATASET_VERSION)
+    params[[sprintf("dvIn[%d][dvId]", vessel_index)]] <- TRACK_DATAVIEW_ID
+    params[[sprintf("dvIn[%d][cfg][clr]", vessel_index)]] <-
+      TRACK_COLORS[(vessel_index %% length(TRACK_COLORS)) + 1]
+    params[[sprintf("dvIn[%d][cfg][info]", vessel_index)]] <- IDENTITY_DATASET
+    params[[sprintf("dvIn[%d][cfg][track]", vessel_index)]] <- TRACKS_DATASET
+    for (j in seq_along(EVENT_DATASETS)) {
+      params[[sprintf("dvIn[%d][cfg][events][%d]", vessel_index, j - 1)]] <- EVENT_DATASETS[[j]]
     }
   }
   # ais/vms are the only visible default-workspace layers; hide so tracks aren't buried
-  layers <- c("ais", "vms")
-  for (j in seq_along(layers)) {
-    idx <- length(vessel_ids) + j - 1
-    pairs[[sprintf("dvIn[%d][id]", idx)]] <- layers[[j]]
-    pairs[[sprintf("dvIn[%d][cfg][vis]", idx)]] <- FALSE
+  hidden_layers <- c("ais", "vms")
+  for (j in seq_along(hidden_layers)) {
+    layer_index <- length(vessel_ids) + j - 1
+    params[[sprintf("dvIn[%d][id]", layer_index)]] <- hidden_layers[[j]]
+    params[[sprintf("dvIn[%d][cfg][vis]", layer_index)]] <- FALSE
   }
-  pairs[["tV"]] <- "vessel"
-  pairs <- c(pairs, .viewport(latitude, longitude, zoom, start, end))
-  sprintf("%s/fishing-activity/default-public?%s", BASE, .query(pairs))
+  params[["tV"]] <- "vessel"
+  params <- c(params, .viewport_params(latitude, longitude, zoom, start, end))
+  sprintf("%s/fishing-activity/default-public?%s", MAP_BASE_URL, .encode_query(params))
 }
