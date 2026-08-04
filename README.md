@@ -14,16 +14,18 @@ Available for Python and R, with the same two functions in both:
 Python:
 
 ```bash
-pip install "git+https://github.com/GlobalFishingWatch/gfwlinks.git#subdirectory=python"
+pip install "git+https://github.com/GlobalFishingWatch/gfwlinks.git@v0.1.0#subdirectory=python"
 ```
 
 R:
 
 ```r
-remotes::install_github("GlobalFishingWatch/gfwlinks", subdir = "r")
+remotes::install_github("GlobalFishingWatch/gfwlinks", subdir = "r", ref = "v0.1.0")
 ```
 
 ## Usage
+
+`vessel_id` is the vessel's `id` field as returned by the [GFW API](https://globalfishingwatch.org/our-apis/documentation#dataset-comparison-overview) or vessel search. See the [gfwr identity guide](https://globalfishingwatch.github.io/gfwr/articles/identity#vesselid) for how vessel identity works across GFW's datasets.
 
 Python:
 
