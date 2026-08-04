@@ -1,0 +1,10 @@
+Package: gfwlinks
+Title: Build Global Fishing Watch Map URLs
+Version: 0.1.0
+Description: Build Global Fishing Watch map URLs without the frontend's encoder.
+Authors@R: person("Global Fishing Watch", role = c("aut", "cre"))
+License: MIT
+Encoding: UTF-8
+Suggests:
+    testthat,
+    jsonlite

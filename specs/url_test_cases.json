@@ -1,0 +1,108 @@
+{
+  "header": {
+    "frontend_repo": "GlobalFishingWatch/frontend",
+    "frontend_branch": "develop",
+    "frontend_commit": "edcd7db8d19be2f07d45dade976a5a7450110d16",
+    "verified_at": "2026-08-04",
+    "pipe_version": "4"
+  },
+  "cases": [
+    {
+      "name": "single_vessel_minimal",
+      "description": "A single-vessel link built with nothing but a vessel id and a viewport \u2014 every other setting left at its default. Verifies the minimal case still produces a working, correct link.",
+      "source": "app-copied",
+      "function": "vessel_profile_url",
+      "args": {
+        "vessel_id": "91da818da-ab9b-1556-e335-ca41831da501",
+        "latitude": -41.0,
+        "longitude": 174.5,
+        "zoom": 5,
+        "start": "2026-01-01T00:00:00.000Z",
+        "end": "2026-01-31T00:00:00.000Z"
+      },
+      "url": "https://globalfishingwatch.org/map/vessel/91da818da-ab9b-1556-e335-ca41831da501?end=2026-01-31T00%3A00%3A00.000Z&latitude=-41&longitude=174.5&start=2026-01-01T00%3A00%3A00.000Z&vDi=public-global-vessel-identity%3Av4.0&vE%5B0%5D=fishing&vE%5B1%5D=encounter&vE%5B2%5D=port_visit&vE%5B3%5D=gaps&vIs=selfReportedInfo&vSRi=91da818da-ab9b-1556-e335-ca41831da501&zoom=5"
+    },
+    {
+      "name": "multiple_vessels_together",
+      "description": "Two vessels combined into one link, with the map's default background activity layers turned off so the vessels aren't buried under them. Verifies that each vessel is represented independently \u2014 distinct colours, none overwriting the other's settings \u2014 while the shared background layers are suppressed exactly once each.",
+      "source": "app-copied",
+      "function": "vessel_tracks_url",
+      "args": {
+        "vessel_ids": [
+          "91da818da-ab9b-1556-e335-ca41831da501",
+          "41a98a2e0-0fbb-3d26-4b71-6d4266443a82"
+        ],
+        "latitude": -43.39484748738283,
+        "longitude": 176.29154691624603,
+        "zoom": 8.634091441294673,
+        "start": "2026-07-02T00:00:00.000Z",
+        "end": "2026-07-31T00:00:00.000Z"
+      },
+      "url": "https://globalfishingwatch.org/map/fishing-activity/default-public?dvIn%5B0%5D%5Bcfg%5D%5Bclr%5D=%23F95E5E&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B0%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B0%5D%5Bid%5D=vessel-91da818da-ab9b-1556-e335-ca41831da501%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bclr%5D=%2333B679&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B1%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B1%5D%5Bid%5D=vessel-41a98a2e0-0fbb-3d26-4b71-6d4266443a82%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Bvis%5D=false&dvIn%5B2%5D%5Bid%5D=ais&dvIn%5B3%5D%5Bcfg%5D%5Bvis%5D=false&dvIn%5B3%5D%5Bid%5D=vms&end=2026-07-31T00%3A00%3A00.000Z&latitude=-43.39484748738283&longitude=176.29154691624603&start=2026-07-02T00%3A00%3A00.000Z&tV=vessel&zoom=8.634091441294673"
+    },
+    {
+      "name": "numeric_precision",
+      "description": "A whole number, a value right at the edge of wrapping around the globe, and a value that only reads back correctly with full decimal precision. Verifies that numbers are never rounded, truncated, or reformatted in a way that would change the coordinate or send the map to a different-but-similar-looking place.",
+      "source": "synthetic",
+      "function": "vessel_profile_url",
+      "args": {
+        "vessel_id": "91da818da-ab9b-1556-e335-ca41831da501",
+        "identity_source": "registryInfo",
+        "latitude": 0,
+        "longitude": -179.99999999999997,
+        "zoom": 8.634091441294673,
+        "start": "2026-02-01T00:00:00.000Z",
+        "end": "2026-02-28T00:00:00.000Z"
+      },
+      "url": "https://globalfishingwatch.org/map/vessel/91da818da-ab9b-1556-e335-ca41831da501?end=2026-02-28T00%3A00%3A00.000Z&latitude=0&longitude=-179.99999999999997&start=2026-02-01T00%3A00%3A00.000Z&vDi=public-global-vessel-identity%3Av4.0&vE%5B0%5D=fishing&vE%5B1%5D=encounter&vE%5B2%5D=port_visit&vE%5B3%5D=gaps&vIs=registryInfo&vSRi=91da818da-ab9b-1556-e335-ca41831da501&zoom=8.634091441294673"
+    },
+    {
+      "name": "single_item_list",
+      "description": "A setting that accepts a list of values, given exactly one value. Verifies a one-item list is still treated as a list, not silently turned into a single bare value that would then serialize differently.",
+      "source": "synthetic",
+      "function": "vessel_profile_url",
+      "args": {
+        "vessel_id": "91da818da-ab9b-1556-e335-ca41831da501",
+        "visible_events": [
+          "fishing"
+        ],
+        "latitude": -39.5,
+        "longitude": 173.0,
+        "zoom": 6,
+        "start": "2026-03-01T00:00:00.000Z",
+        "end": "2026-03-31T00:00:00.000Z"
+      },
+      "url": "https://globalfishingwatch.org/map/vessel/91da818da-ab9b-1556-e335-ca41831da501?end=2026-03-31T00%3A00%3A00.000Z&latitude=-39.5&longitude=173&start=2026-03-01T00%3A00%3A00.000Z&vDi=public-global-vessel-identity%3Av4.0&vE%5B0%5D=fishing&vIs=selfReportedInfo&vSRi=91da818da-ab9b-1556-e335-ca41831da501&zoom=6"
+    },
+    {
+      "name": "large_fleet",
+      "description": "Enough vessels to run out of distinct colours and to push position numbers into double digits. Verifies colours cycle back to the start once exhausted rather than running out or clashing, and that ordering stays correct once positions are no longer single digits (a naive alphabetical sort would put position 10 before position 2).",
+      "source": "synthetic",
+      "function": "vessel_tracks_url",
+      "args": {
+        "vessel_ids": [
+          "synthetic-vessel-00",
+          "synthetic-vessel-01",
+          "synthetic-vessel-02",
+          "synthetic-vessel-03",
+          "synthetic-vessel-04",
+          "synthetic-vessel-05",
+          "synthetic-vessel-06",
+          "synthetic-vessel-07",
+          "synthetic-vessel-08",
+          "synthetic-vessel-09",
+          "synthetic-vessel-10",
+          "synthetic-vessel-11",
+          "synthetic-vessel-12",
+          "synthetic-vessel-13"
+        ],
+        "latitude": 19,
+        "longitude": 26,
+        "zoom": 1.49,
+        "start": "2026-04-01T00:00:00.000Z",
+        "end": "2026-04-30T00:00:00.000Z"
+      },
+      "url": "https://globalfishingwatch.org/map/fishing-activity/default-public?dvIn%5B0%5D%5Bcfg%5D%5Bclr%5D=%23F95E5E&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B0%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B0%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B0%5D%5Bid%5D=vessel-synthetic-vessel-00%3Av4.0&dvIn%5B10%5D%5Bcfg%5D%5Bclr%5D=%238E24A9&dvIn%5B10%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B10%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B10%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B10%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B10%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B10%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B10%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B10%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B10%5D%5Bid%5D=vessel-synthetic-vessel-10%3Av4.0&dvIn%5B11%5D%5Bcfg%5D%5Bclr%5D=%23ABFF34&dvIn%5B11%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B11%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B11%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B11%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B11%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B11%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B11%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B11%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B11%5D%5Bid%5D=vessel-synthetic-vessel-11%3Av4.0&dvIn%5B12%5D%5Bcfg%5D%5Bclr%5D=%23FCA26F&dvIn%5B12%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B12%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B12%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B12%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B12%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B12%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B12%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B12%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B12%5D%5Bid%5D=vessel-synthetic-vessel-12%3Av4.0&dvIn%5B13%5D%5Bcfg%5D%5Bclr%5D=%23F95E5E&dvIn%5B13%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B13%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B13%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B13%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B13%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B13%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B13%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B13%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B13%5D%5Bid%5D=vessel-synthetic-vessel-13%3Av4.0&dvIn%5B14%5D%5Bcfg%5D%5Bvis%5D=false&dvIn%5B14%5D%5Bid%5D=ais&dvIn%5B15%5D%5Bcfg%5D%5Bvis%5D=false&dvIn%5B15%5D%5Bid%5D=vms&dvIn%5B1%5D%5Bcfg%5D%5Bclr%5D=%2333B679&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B1%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B1%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B1%5D%5Bid%5D=vessel-synthetic-vessel-01%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Bclr%5D=%23F09300&dvIn%5B2%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B2%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B2%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B2%5D%5Bid%5D=vessel-synthetic-vessel-02%3Av4.0&dvIn%5B3%5D%5Bcfg%5D%5Bclr%5D=%231AFF6B&dvIn%5B3%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B3%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B3%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B3%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B3%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B3%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B3%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B3%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B3%5D%5Bid%5D=vessel-synthetic-vessel-03%3Av4.0&dvIn%5B4%5D%5Bcfg%5D%5Bclr%5D=%23F4511F&dvIn%5B4%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B4%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B4%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B4%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B4%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B4%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B4%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B4%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B4%5D%5Bid%5D=vessel-synthetic-vessel-04%3Av4.0&dvIn%5B5%5D%5Bcfg%5D%5Bclr%5D=%230B8043&dvIn%5B5%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B5%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B5%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B5%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B5%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B5%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B5%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B5%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B5%5D%5Bid%5D=vessel-synthetic-vessel-05%3Av4.0&dvIn%5B6%5D%5Bcfg%5D%5Bclr%5D=%23069688&dvIn%5B6%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B6%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B6%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B6%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B6%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B6%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B6%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B6%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B6%5D%5Bid%5D=vessel-synthetic-vessel-06%3Av4.0&dvIn%5B7%5D%5Bcfg%5D%5Bclr%5D=%234184F4&dvIn%5B7%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B7%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B7%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B7%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B7%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B7%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B7%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B7%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B7%5D%5Bid%5D=vessel-synthetic-vessel-07%3Av4.0&dvIn%5B8%5D%5Bcfg%5D%5Bclr%5D=%23AD1457&dvIn%5B8%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B8%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B8%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B8%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B8%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B8%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B8%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B8%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B8%5D%5Bid%5D=vessel-synthetic-vessel-08%3Av4.0&dvIn%5B9%5D%5Bcfg%5D%5Bclr%5D=%23C0CA33&dvIn%5B9%5D%5Bcfg%5D%5Bevents%5D%5B0%5D=public-global-fishing-events%3Av4.0&dvIn%5B9%5D%5Bcfg%5D%5Bevents%5D%5B1%5D=public-global-port-visits-events%3Av4.0&dvIn%5B9%5D%5Bcfg%5D%5Bevents%5D%5B2%5D=public-global-encounters-events%3Av4.0&dvIn%5B9%5D%5Bcfg%5D%5Bevents%5D%5B3%5D=public-global-loitering-events%3Av4.0&dvIn%5B9%5D%5Bcfg%5D%5Bevents%5D%5B4%5D=public-global-gaps-events%3Av4.0&dvIn%5B9%5D%5Bcfg%5D%5Binfo%5D=public-global-vessel-identity%3Av4.0&dvIn%5B9%5D%5Bcfg%5D%5Btrack%5D=public-global-all-tracks%3Av4.0&dvIn%5B9%5D%5BdvId%5D=fishing-map-vessel-track-v-4&dvIn%5B9%5D%5Bid%5D=vessel-synthetic-vessel-09%3Av4.0&end=2026-04-30T00%3A00%3A00.000Z&latitude=19&longitude=26&start=2026-04-01T00%3A00%3A00.000Z&tV=vessel&zoom=1.49"
+    }
+  ]
+}

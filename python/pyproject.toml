@@ -1,0 +1,13 @@
+[project]
+name = "gfwlinks"
+version = "0.1.0"
+description = "Build Global Fishing Watch map URLs without the frontend's encoder"
+requires-python = ">=3.9"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.6,<0.7"]
+build-backend = "uv_build"
