@@ -18,6 +18,13 @@ cd r && Rscript -e 'testthat::test_dir("tests/testthat")'
 
 Both suites check output against `specs/url_test_cases.json`.
 
+## Versioning
+
+Semantic versioning (`MAJOR.MINOR.PATCH`). Python (`python/pyproject.toml`)
+and R (`r/DESCRIPTION`) each track their own version string — nothing
+enforces they match, so bump both together on release. Pre-1.0: anything may
+break between minor versions.
+
 ## Ground truth
 
 Verified against `frontend@develop` at commit

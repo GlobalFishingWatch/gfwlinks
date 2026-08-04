@@ -1,5 +1,7 @@
 # gfwlinks
 
+**Experimental, pre-1.0** — API may change without notice.
+
 Build shareable Global Fishing Watch map links from vessel ids — no need to
 open the map and click through the UI.
 
