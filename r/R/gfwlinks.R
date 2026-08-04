@@ -72,8 +72,8 @@ TRACK_COLORS <- c("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B804
 #'
 #' @param vessel_id Vessel id (the `id` field from the GFW API/vessel search).
 #' @param identity_source Which identity record to show: `"selfReportedInfo"`
-#'   (default) or `"registryInfo"`. Note the live app instead defaults to
-#'   `"registryInfo"` with a fallback; see DEVELOPMENT.md.
+#'   (default, since nearly every vessel has one) or `"registryInfo"`. The
+#'   live map defaults to `"registryInfo"` instead.
 #' @param visible_events Character vector of event layers to show, e.g.
 #'   `"fishing"`, `"encounter"`, `"port_visit"`, `"loitering"`, `"gaps"`.
 #'   Defaults to all but `"loitering"`.

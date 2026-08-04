@@ -19,8 +19,8 @@ vessel_profile_url(
 \item{vessel_id}{Vessel id (the \code{id} field from the GFW API/vessel search).}
 
 \item{identity_source}{Which identity record to show: \code{"selfReportedInfo"}
-(default) or \code{"registryInfo"}. Note the live app instead defaults to
-\code{"registryInfo"} with a fallback; see DEVELOPMENT.md.}
+(default, since nearly every vessel has one) or \code{"registryInfo"}. The
+live map defaults to \code{"registryInfo"} instead.}
 
 \item{visible_events}{Character vector of event layers to show, e.g.
 \code{"fishing"}, \code{"encounter"}, \code{"port_visit"}, \code{"loitering"}, \code{"gaps"}.
