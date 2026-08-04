@@ -29,9 +29,9 @@ COLORS <- c("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#
   list(latitude = latitude, longitude = longitude, zoom = zoom, start = start, end = end)
 }
 
-vessel_profile_url <- function(vessel_id, identity_source = "selfReportedInfo",
-                                visible_events = DEFAULT_EVENTS, latitude = NULL,
-                                longitude = NULL, zoom = NULL, start = NULL, end = NULL) {
+.vessel_profile_url_one <- function(vessel_id, identity_source = "selfReportedInfo",
+                                     visible_events = DEFAULT_EVENTS, latitude = NULL,
+                                     longitude = NULL, zoom = NULL, start = NULL, end = NULL) {
   if (!grepl("^[A-Za-z0-9:._-]+$", vessel_id)) {  # lands in the PATH: a stray ?/#
     stop("suspicious vessel_id: ", vessel_id)      # changes the URL
   }
@@ -43,8 +43,16 @@ vessel_profile_url <- function(vessel_id, identity_source = "selfReportedInfo",
   sprintf("%s/vessel/%s?%s", BASE, vessel_id, .query(pairs))
 }
 
-vessel_tracks_url <- function(vessel_ids, latitude = NULL, longitude = NULL, zoom = NULL,
-                               start = NULL, end = NULL) {
+# vectorized so mutate(url = vessel_profile_url(vessel_id)) works over a column;
+# visible_events stays whole per call (same events for every row), not zipped
+vessel_profile_url <- Vectorize(.vessel_profile_url_one,
+                                 vectorize.args = c("vessel_id", "identity_source",
+                                                     "latitude", "longitude", "zoom",
+                                                     "start", "end"),
+                                 SIMPLIFY = TRUE, USE.NAMES = FALSE)
+
+vessel_map_url <- function(vessel_ids, latitude = NULL, longitude = NULL, zoom = NULL,
+                            start = NULL, end = NULL) {
   pairs <- list()
   for (i in seq_along(vessel_ids)) {
     idx <- i - 1

@@ -1,2 +1,2 @@
 export(vessel_profile_url)
-export(vessel_tracks_url)
+export(vessel_map_url)

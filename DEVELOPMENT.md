@@ -38,7 +38,7 @@ the spec file.
   app defaults to `registryInfo` with a fallback.
 - Dataview colours always start at palette index `[0]`; the app assigns by
   pin order against already-used colours, so order can differ (same colours).
-- No fit-bounds parameter — without an explicit viewport, `vessel_tracks_url`
+- No fit-bounds parameter — without an explicit viewport, `vessel_map_url`
   opens at the world default view.
 - URLs are literal, not qs-tokenized — longer than the app's, never wrong;
   the app parses literal URLs the same way.

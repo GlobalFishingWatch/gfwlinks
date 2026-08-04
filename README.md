@@ -6,7 +6,7 @@ open the map and click through the UI.
 Available for Python and R, with the same two functions in both:
 
 - `vessel_profile_url(vessel_id, ...)` — page for a single vessel
-- `vessel_tracks_url(vessel_ids, ...)` — map showing one or more vessels' tracks
+- `vessel_map_url(vessel_ids, ...)` — map showing one or more vessels' tracks
 
 ## Install
 
@@ -29,7 +29,7 @@ Python:
 ```python
 import gfwlinks
 gfwlinks.vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501")
-gfwlinks.vessel_tracks_url(["91da818da-...", "41a98a2e0-..."], latitude=-43.4, longitude=176.3, zoom=8.6)
+gfwlinks.vessel_map_url(["91da818da-...", "41a98a2e0-..."], latitude=-43.4, longitude=176.3, zoom=8.6)
 ```
 
 R:
@@ -37,7 +37,7 @@ R:
 ```r
 library(gfwlinks)
 vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501")
-vessel_tracks_url(c("91da818da-...", "41a98a2e0-..."), latitude = -43.4, longitude = 176.3, zoom = 8.6)
+vessel_map_url(c("91da818da-...", "41a98a2e0-..."), latitude = -43.4, longitude = 176.3, zoom = 8.6)
 ```
 
 `latitude`, `longitude`, `zoom`, `start`, and `end` are optional — pass them

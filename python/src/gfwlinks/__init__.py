@@ -49,8 +49,10 @@ def vessel_profile_url(vessel_id, identity_source="selfReportedInfo",
     return f"{BASE}/vessel/{vessel_id}?{_query(pairs)}"
 
 
-def vessel_tracks_url(vessel_ids, latitude=None, longitude=None, zoom=None,
-                       start=None, end=None):
+def vessel_map_url(vessel_ids, latitude=None, longitude=None, zoom=None,
+                    start=None, end=None):
+    if isinstance(vessel_ids, str):        # else iterates chars into one id per letter
+        raise TypeError("vessel_ids must be a list of ids, not a single string")
     pairs = []
     for i, v in enumerate(vessel_ids):
         pairs += [(f"dvIn[{i}][id]", f"vessel-{v}:{_V}"),

@@ -26,7 +26,7 @@
       "name": "multiple_vessels_together",
       "description": "Two vessels combined into one link, with the map's default background activity layers turned off so the vessels aren't buried under them. Verifies that each vessel is represented independently \u2014 distinct colours, none overwriting the other's settings \u2014 while the shared background layers are suppressed exactly once each.",
       "source": "app-copied",
-      "function": "vessel_tracks_url",
+      "function": "vessel_map_url",
       "args": {
         "vessel_ids": [
           "91da818da-ab9b-1556-e335-ca41831da501",
@@ -78,7 +78,7 @@
       "name": "large_fleet",
       "description": "Enough vessels to run out of distinct colours and to push position numbers into double digits. Verifies colours cycle back to the start once exhausted rather than running out or clashing, and that ordering stays correct once positions are no longer single digits (a naive alphabetical sort would put position 10 before position 2).",
       "source": "synthetic",
-      "function": "vessel_tracks_url",
+      "function": "vessel_map_url",
       "args": {
         "vessel_ids": [
           "synthetic-vessel-00",
