@@ -31,7 +31,7 @@ def _fmt(v):
         return str(v)
     for d in range(18):                # shortest fixed-notation that round-trips; the R
         s = "%.*f" % (d, v)            # twin uses the same loop because R lacks a
-        if float(s) == v:              # shortest-roundtrip primitive. See PLAN.md §9.
+        if float(s) == v:              # shortest-roundtrip primitive like JS's String(n)
             return s
     raise ValueError(f"cannot format {v!r}")
 
@@ -70,6 +70,9 @@ def vessel_profile_url(vessel_id, identity_source="selfReportedInfo",
     Returns:
         str: The vessel profile page URL.
 
+    Raises:
+        TypeError: If `visible_events` is a single string instead of a list.
+
     Example:
         >>> vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501")
         >>> vessel_profile_url("91da818da-ab9b-1556-e335-ca41831da501",
@@ -77,6 +80,8 @@ def vessel_profile_url(vessel_id, identity_source="selfReportedInfo",
     """
     if not re.fullmatch(r"[A-Za-z0-9:._-]+", vessel_id):   # lands in the PATH: a stray
         raise ValueError(f"suspicious vessel_id: {vessel_id!r}")   # ?/# changes the URL
+    if isinstance(visible_events, str):    # else iterates chars into one event per letter
+        raise TypeError("visible_events must be a list of events, not a single string")
     pairs = [("vDi", IDENTITY), ("vIs", identity_source), ("vSRi", vessel_id)]
     pairs += [(f"vE[{i}]", e) for i, e in enumerate(visible_events)]
     pairs += _viewport(latitude, longitude, zoom, start, end)

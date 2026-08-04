@@ -7,7 +7,7 @@ test_that("urls match the shared spec", {
   spec_path <- testthat::test_path("..", "..", "..", "specs", "url_test_cases.json")
   skip_if_not(file.exists(spec_path), "spec not reachable (R CMD check)")
   # simplifyVector = FALSE keeps JSON arrays as lists so one-element arrays don't
-  # collapse to scalars and diverge from Python (see PLAN.md §9)
+  # collapse to scalars and diverge from Python
   spec <- jsonlite::fromJSON(spec_path, simplifyVector = FALSE)
   for (case in spec$cases)
     expect_identical(do.call(get(case[["function"]]), case$args), case$url,

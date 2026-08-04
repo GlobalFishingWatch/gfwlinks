@@ -16,7 +16,8 @@ cd python && uv run pytest
 cd r && Rscript -e 'testthat::test_dir("tests/testthat")'
 ```
 
-Both suites check output against `specs/url_test_cases.json`.
+Both suites check output against `specs/url_test_cases.json`. CI
+(`.github/workflows/test.yml`) runs both on every PR.
 
 ## Versioning
 

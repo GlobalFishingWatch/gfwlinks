@@ -19,8 +19,9 @@ COLORS <- c("#F95E5E", "#33B679", "#F09300", "#1AFF6B", "#F4511F", "#0B8043", "#
 
 .query <- function(pairs) {
   pairs <- pairs[!vapply(pairs, is.null, logical(1))]
-  o <- order(names(pairs), method = "radix")      # MANDATORY, see PLAN.md §9
-  enc <- function(s) utils::URLencode(s, reserved = TRUE)
+  # radix: locale-independent byte order, matching JS URLSearchParams.sort()
+  o <- order(names(pairs), method = "radix")
+  enc <- function(s) utils::URLencode(s, reserved = TRUE, repeated = TRUE)
   paste(vapply(names(pairs)[o], enc, ""),
         vapply(vapply(pairs[o], .fmt, ""), enc, ""), sep = "=", collapse = "&")
 }
