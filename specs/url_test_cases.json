@@ -10,7 +10,7 @@
     {
       "name": "single_vessel_minimal",
       "description": "A single-vessel link built with nothing but a vessel id and a viewport \u2014 every other setting left at its default. Verifies the minimal case still produces a working, correct link.",
-      "source": "app-copied",
+      "live": true,
       "function": "vessel_profile_url",
       "args": {
         "vessel_id": "91da818da-ab9b-1556-e335-ca41831da501",
@@ -25,7 +25,7 @@
     {
       "name": "multiple_vessels_together",
       "description": "Two vessels combined into one link, with the map's default background activity layers turned off so the vessels aren't buried under them. Verifies that each vessel is represented independently \u2014 distinct colours, none overwriting the other's settings \u2014 while the shared background layers are suppressed exactly once each.",
-      "source": "app-copied",
+      "live": true,
       "function": "vessel_map_url",
       "args": {
         "vessel_ids": [
@@ -43,7 +43,7 @@
     {
       "name": "numeric_precision",
       "description": "A whole number, a value right at the edge of wrapping around the globe, and a value that only reads back correctly with full decimal precision. Verifies that numbers are never rounded, truncated, or reformatted in a way that would change the coordinate or send the map to a different-but-similar-looking place.",
-      "source": "synthetic",
+      "live": true,
       "function": "vessel_profile_url",
       "args": {
         "vessel_id": "91da818da-ab9b-1556-e335-ca41831da501",
@@ -59,7 +59,7 @@
     {
       "name": "single_item_list",
       "description": "A setting that accepts a list of values, given exactly one value. Verifies a one-item list is still treated as a list, not silently turned into a single bare value that would then serialize differently.",
-      "source": "synthetic",
+      "live": true,
       "function": "vessel_profile_url",
       "args": {
         "vessel_id": "91da818da-ab9b-1556-e335-ca41831da501",
@@ -77,7 +77,7 @@
     {
       "name": "large_fleet",
       "description": "Enough vessels to run out of distinct colours and to push position numbers into double digits. Verifies colours cycle back to the start once exhausted rather than running out or clashing, and that ordering stays correct once positions are no longer single digits (a naive alphabetical sort would put position 10 before position 2).",
-      "source": "synthetic",
+      "live": false,
       "function": "vessel_map_url",
       "args": {
         "vessel_ids": [
@@ -107,7 +107,6 @@
     {
       "name": "rejects_url_breaking_vessel_id",
       "description": "A vessel id containing a '?' would land in the URL path and silently change the link's target (a stray '?' starts a new query string, '#' starts a fragment). Verifies both languages reject ids outside the expected [A-Za-z0-9:._-]+ shape instead of building a broken link.",
-      "source": "synthetic",
       "function": "vessel_profile_url",
       "args": {
         "vessel_id": "bad?id"
