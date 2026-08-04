@@ -20,16 +20,8 @@ jobs:
         working-directory: python
         env:
           GFWLINKS_LIVE: "1"
-      - name: Embed screenshots in job summary
-        if: always()         # screenshots are taken every run, pass or fail
-        run: |
-          shopt -s nullglob
-          for f in python/live-screenshots/*; do
-            echo "### $(basename "$f")" >> "$GITHUB_STEP_SUMMARY"
-            echo "![$(basename "$f")](data:image/jpeg;base64,$(base64 -w0 "$f"))" >> "$GITHUB_STEP_SUMMARY"
-          done
       - uses: actions/upload-artifact@v7
-        if: always()         # full-res fallback / download for offline review
+        if: always()         # the screenshots matter most when the assertions failed
         with:
           name: live-screenshots
           path: python/live-screenshots/
