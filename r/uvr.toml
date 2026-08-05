@@ -1,7 +1,0 @@
-[project]
-name = "gfwlinks"
-r_version = ">=4.1.0"
-
-[dev-dependencies]
-testthat = "*"
-jsonlite = "*"

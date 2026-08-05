@@ -7,3 +7,4 @@ __pycache__/
 .RData
 live-screenshots/
 .playwright-mcp/
+CLAUDE.md

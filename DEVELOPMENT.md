@@ -61,7 +61,7 @@ Deliberately not asserted: the API's `start-date`/`end-date` (the app widens our
 
 ## Versioning
 
-Semantic versioning (`MAJOR.MINOR.PATCH`). Python (`python/pyproject.toml`) and R (`r/DESCRIPTION`) each track their own version string — nothing enforces they match, so bump both together on release. Pre-1.0: anything may break between minor versions.
+Semantic versioning (`MAJOR.MINOR.PATCH`). Python (`python/pyproject.toml`) and R (`r/DESCRIPTION`) each track their own version string; a CI job (`versions` in `.github/workflows/test.yml`) fails the build if they diverge, so bump both together on release. Pre-1.0: anything may break between minor versions. See `CHANGELOG.md` for release history.
 
 ## Ground truth
 
