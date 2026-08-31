@@ -103,7 +103,8 @@ def _assert_app_understands(url, vessel_ids, datasets, browser, screenshot_name)
             api_calls.append((urllib.parse.unquote(response.url), response.status))
 
     page.on("response", record)
-    page.on("pageerror", lambda error: page_errors.append(str(error)))
+    # ignore known React hydration mismatch (#418/#423) from GFW frontend deploy 2026-08-31; see #16 — remove when upstream fixes hydration or error codes change
+    page.on("pageerror", lambda error: "React error #418" not in str(error) and "React error #423" not in str(error) and page_errors.append(str(error)))
 
     def seen(pattern):
         return [call for call in api_calls if re.search(pattern, call[0])]
